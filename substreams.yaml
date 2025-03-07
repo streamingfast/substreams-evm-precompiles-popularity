@@ -29,13 +29,11 @@ modules:
     kind: store
     updatePolicy: add
     valueType: int64
-    initialBlock: 20000000
     inputs:
       - map: ethcommon:filtered_calls
 
   - name: map_counts
     kind: map
-    initialBlock: 20000000
     inputs:
       - store: store_counts
         mode: get

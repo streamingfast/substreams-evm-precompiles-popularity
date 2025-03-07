@@ -1,7 +1,7 @@
 specVersion: v0.1.0
 package:
-  name: substreams_evm_precompile_popularity
-  version: v0.1.0
+  name: substreams_evm_precompiles_popularity
+  version: v0.2.0
 
 imports:
     ethcommon: https://spkg.io/streamingfast/ethereum-common-v0.3.1.spkg

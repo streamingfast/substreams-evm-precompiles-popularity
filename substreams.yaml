@@ -4,7 +4,7 @@ package:
   version: v0.1.0
 
 imports:
-    ethcommon: https://spkg.io/streamingfast/ethereum-common-v0.3.0.spkg
+    ethcommon: https://spkg.io/streamingfast/ethereum-common-v0.3.1.spkg
 
 protobuf:
   files:
@@ -12,8 +12,12 @@ protobuf:
   importPaths:
     - ./proto
   excludePaths:
-    - sf/substreams
     - google
+    - sf/ethereum/type
+    - sf/substreams/index
+    - sf/substreams/rpc
+    - sf/substreams/sink
+    - sf/substreams/v1
 
 binaries:
   default:
@@ -21,16 +25,16 @@ binaries:
     file: ./target/wasm32-unknown-unknown/release/substreams.wasm
 
 modules:
-
   - name: map_calls
     kind: map
     initialBlock: 0
-    blockFilter:
-      module: ethcommon:index_calls
-      query:
-        string: call_to:0x0000000000000000000000000000000000000001
     inputs:
-      - source: sf.ethereum.type.v2.Block
+      - source: sf.substreams.v1.Clock
+      - map: ethcommon:filtered_calls
     output:
       type: proto:contract.v1.Calls
+
 network: mainnet
+
+params:
+  ethcommon:filtered_calls: call_to:0x0000000000000000000000000000000000000001

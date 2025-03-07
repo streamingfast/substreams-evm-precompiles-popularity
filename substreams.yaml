@@ -25,14 +25,22 @@ binaries:
     file: ./target/wasm32-unknown-unknown/release/substreams.wasm
 
 modules:
-  - name: map_calls
-    kind: map
-    initialBlock: 0
+  - name: store_counts
+    kind: store
+    updatePolicy: add
+    valueType: int64
+    initialBlock: 20000000
     inputs:
-      - source: sf.substreams.v1.Clock
       - map: ethcommon:filtered_calls
+
+  - name: map_counts
+    kind: map
+    initialBlock: 20000000
+    inputs:
+      - store: store_counts
+        mode: get
     output:
-      type: proto:contract.v1.Calls
+      type: proto:contract.v1.PrecompilesPopularity
 
 network: mainnet
 

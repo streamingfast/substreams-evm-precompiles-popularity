@@ -1,40 +1,44 @@
-mod abi;
 mod pb;
-use hex_literal::hex;
 use pb::contract::v1 as contract;
-use substreams::{pb::substreams::Clock, Hex};
+use substreams::{
+    store::{DeltaInt64, Deltas, StoreAdd, StoreAddInt64, StoreGet, StoreGetInt64, StoreNew},
+    Hex,
+};
 
 #[allow(unused_imports)]
 use num_traits::cast::ToPrimitive;
-use std::str::FromStr;
-use substreams::scalar::BigDecimal;
 
 use crate::pb::sf::substreams::ethereum::v1::Calls;
 
 substreams_ethereum::init!();
 
-fn map_precompile1_calls(clock: &Clock, calls_message: &Calls, output: &mut contract::Calls) {
-    output
-        .precompile1_call_runs
-        .extend(&mut calls_message.calls.iter().filter_map(|call_info| {
-            let call = call_info.call.as_ref().unwrap();
+#[substreams::handlers::store]
+fn store_counts(calls_message: Calls, s: StoreAddInt64) {
+    for call_info in calls_message.calls {
+        let call = call_info.call.unwrap();
 
-            match abi::precompile1_contract::functions::Run::decode(call) {
-                Ok(decoded_call) => Some(contract::Precompile1RunCall {
-                    call_tx_hash: call_info.tx_hash.clone(),
-                    call_block_time: clock.timestamp.clone(),
-                    call_block_number: clock.number,
-                    call_ordinal: call.begin_ordinal,
-                    call_success: !call.state_reverted,
-                }),
-                Err(_) => None,
-            }
-        }));
+        s.add(call.end_ordinal, Hex::encode(call.address), 1);
+    }
 }
 
 #[substreams::handlers::map]
-fn map_calls(clock: Clock, calls: Calls) -> Result<contract::Calls, substreams::errors::Error> {
-    let mut output = contract::Calls::default();
-    map_precompile1_calls(&clock, &calls, &mut output);
+fn map_counts(
+    counts: StoreGetInt64,
+) -> Result<contract::PrecompilesPopularity, substreams::errors::Error> {
+    let mut output = contract::PrecompilesPopularity::default();
+
+    for precompile in 1..12 {
+        let address: [u8; 20] = [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, precompile,
+        ];
+        let key = Hex::encode(address);
+
+        if let Some(count) = counts.get_last(&key) {
+            output.entries.push(contract::Entry {
+                address: key,
+                count,
+            });
+        }
+    }
     Ok(output)
 }

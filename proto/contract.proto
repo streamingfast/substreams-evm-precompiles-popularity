@@ -3,14 +3,12 @@ syntax = "proto3";
 import "google/protobuf/timestamp.proto";
 
 package contract.v1;
-message Calls {
-    repeated Precompile1_RunCall precompile1_call_runs = 1;
+
+message PrecompilesPopularity {
+   repeated Entry entries = 1;
 }
-  
-message Precompile1_RunCall {
-    string call_tx_hash = 1;
-    google.protobuf.Timestamp call_block_time = 2;
-    uint64 call_block_number = 3;
-    uint64 call_ordinal = 4;
-    bool call_success = 5;
+
+message Entry {
+    string address = 1;
+    int64 count = 2;
 }

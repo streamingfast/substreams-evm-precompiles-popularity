@@ -1,0 +1,36 @@
+specVersion: v0.1.0
+package:
+  name: substreams_evm_precompile_popularity
+  version: v0.1.0
+
+imports:
+    ethcommon: https://spkg.io/streamingfast/ethereum-common-v0.3.0.spkg
+
+protobuf:
+  files:
+    - contract.proto
+  importPaths:
+    - ./proto
+  excludePaths:
+    - sf/substreams
+    - google
+
+binaries:
+  default:
+    type: wasm/rust-v1
+    file: ./target/wasm32-unknown-unknown/release/substreams.wasm
+
+modules:
+
+  - name: map_calls
+    kind: map
+    initialBlock: 0
+    blockFilter:
+      module: ethcommon:index_calls
+      query:
+        string: call_to:0x0000000000000000000000000000000000000001
+    inputs:
+      - source: sf.ethereum.type.v2.Block
+    output:
+      type: proto:contract.v1.Calls
+network: mainnet

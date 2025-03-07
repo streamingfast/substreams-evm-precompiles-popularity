@@ -1,0 +1,4 @@
+.substreams.env
+target/
+sink-data/
+*.spkg

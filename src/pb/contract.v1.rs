@@ -10,8 +10,10 @@ pub struct PrecompilesPopularity {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Entry {
     #[prost(string, tag="1")]
+    pub name: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
     pub address: ::prost::alloc::string::String,
-    #[prost(int64, tag="2")]
+    #[prost(int64, tag="3")]
     pub count: i64,
 }
 // @@protoc_insertion_point(module)
